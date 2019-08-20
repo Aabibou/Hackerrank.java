@@ -1,0 +1,93 @@
+/*
+    Abibou Mbodji August 2019
+    This is the solution of this problem.
+    https://www.hackerrank.com/challenges/merging-communities/problem
+*/
+
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+class Node{
+    int val;
+    Node parent;
+
+    Node(int _val){
+        val=_val;
+        parent=this;
+    }
+
+    boolean isHead(){
+        return this.parent==this;
+    }
+
+    Node findHead(){
+        if(this.isHead()) return this;
+        Node curr=this;
+        while(!curr.isHead()){
+            curr=curr.parent;
+        }
+        return curr;
+    }
+
+
+}
+
+public class MergingCommunities {
+    static int[] lengths;
+    static HashMap<Integer, Node> map;
+
+
+    static void printLengths(int n){
+        for(int i=1;i<n;i++){
+            System.out.println("Length "+i+":"+lengths[i]);
+        }
+    }
+
+    static void union(Node node1, Node node2){
+        if(node1.findHead()==node2.findHead()) return;
+        Node head1=node1.findHead();
+        
+        while(!node2.isHead()){
+            Node tmp=node2.parent;
+            node2.parent=head1;
+            node2=tmp;
+        }
+        lengths[head1.val]+=lengths[node2.val];
+        node2.parent=head1;
+
+    }
+
+   private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args){
+        int n =scanner.nextInt();
+        int q=scanner.nextInt();
+
+        lengths=new int[n+1];
+        map=new HashMap<>();
+        //initiate the lengnts and the hashmap.
+        for(int i=0;i<=n;i++){
+            map.put(i, new Node(i));
+            lengths[i]=1;
+        }
+
+
+        for (int i = 0; i < q; i++) {
+            String str=scanner.next();
+            if(str.charAt(0)=='M'){
+                int a=scanner.nextInt(), b=scanner.nextInt();
+                union(map.get(a), map.get(b));
+            }
+            else{
+                int c=scanner.nextInt();
+                System.out.println(lengths[map.get(c).findHead().val]);
+            }
+        
+                        
+        }
+
+    }
+}
