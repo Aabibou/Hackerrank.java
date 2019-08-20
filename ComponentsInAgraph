@@ -1,0 +1,102 @@
+/*
+    Abibou Mbodji August 2019
+    This is the solution of this problem.
+    https://www.hackerrank.com/challenges/components-in-graph/problem
+*/
+
+import java.io.*;
+import java.math.*;
+import java.text.*;
+import java.util.*;
+import java.util.regex.*;
+
+class Node{
+    int val;
+    Node parent;
+
+    Node(int _val){
+        val=_val;
+        parent=this;
+    }
+
+    boolean isHead(){
+        return this.parent==this;
+    }
+
+    Node findHead(){
+        Node curr=this;
+        while(curr.parent!=curr){
+            curr=curr.parent;
+        }
+        return curr;
+    }
+
+
+}
+
+public class ComponentsInAgraph {
+    static int[] lengths;
+    static HashMap<Integer, Node> map;
+
+    //the the haspmap with <i, node(i)>. i=[1, 2n].
+    static void initMap(int n){
+        for(int i=1;i<=n;i++){
+            map.put(i, new Node(i));
+        }
+    }
+    static void initLengths(int n){
+        for(int i=1;i<n;i++){
+            lengths[i]=1;
+        }
+    }
+
+    static void printLengths(int n){
+        for(int i=1;i<=n;i++){
+            System.out.println("Length "+i+":"+lengths[i]);
+        }
+    }
+
+    static void union(Node node1, Node node2){
+        Node head1=node1.findHead();
+        Node head2=node2.findHead();
+        if(head1==head2) return;
+        head2.parent=head1;
+        lengths[head1.val]+=lengths[head2.val];
+    }
+
+    static int[] minmax(int n){
+        int max=0, min=Integer.MAX_VALUE;
+        for(int i=1;i<=2*n;i++){
+            if(map.containsKey(i) && map.get(i).isHead() && lengths[i]>1){
+                if(lengths[i]<min) min=lengths[i];
+                if(lengths[i]>max) max=lengths[i];
+            }
+        }
+        return new int[]{min, max};
+    }
+
+   private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args){
+        int n =scanner.nextInt();
+
+        lengths=new int[2*n+1];
+        initLengths(2*n+1);
+        map=new HashMap<>();
+
+
+        for (int gbRowItr = 0; gbRowItr < n; gbRowItr++) {
+            int a=scanner.nextInt(), b=scanner.nextInt();
+            
+            if(!map.containsKey(a))
+                map.put(a, new Node(a));
+            if(!map.containsKey(b))
+                map.put(b, new Node(b));
+            union(map.get(a), map.get(b));
+        }
+
+        int[] res=minmax(n);
+
+        System.out.print(res[0]+" "+res[1]);
+    }
+}
