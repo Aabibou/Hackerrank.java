@@ -1,0 +1,128 @@
+
+/*
+    Abibou Mbodji August 2019
+    This is the solution of this problem.
+    https://www.hackerrank.com/challenges/count-luck/problem
+*/
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.*;
+
+class Point{
+    int i;
+    int j;
+    Point(int _i, int _j){
+        i=_i;
+        j=_j;
+    }
+    Point(){
+
+    }
+    void printPoint(){
+        System.out.println("("+i+", "+j+")");
+    }
+    boolean isEqual(Point pt){
+        if(i==pt.i && j==pt.j) return true;
+        return false;
+    }
+}
+
+
+public class Solution {
+    //static int count=0;
+
+    // Complete the countLuck function below.
+    static String countLuck(StringBuilder[] matx, int k) {
+        Point M=determinePoint(matx, 'M');
+        Point asterix=determinePoint(matx, '*');
+
+        int count=dfs(matx, M, asterix);
+        System.out.println("count is:"+count);
+        return count==k?"Impressed":"Oops!";
+    }
+    static int dfs(StringBuilder[] matx, Point pt, Point asterix){
+        if(pt.isEqual(asterix)) return 0;
+
+        int[] di={1,0,-1,0};
+        int[] dj={0,-1,0,1};
+        int result=-1;
+        int optionsCount=0;
+
+        replaceaPoint(matx, pt);
+        for(int i=0;i<4;i++){
+                final int tmpi=pt.i+di[i];
+                final int tmpj=pt.j+dj[i];
+                if(!isValid(matx, tmpi, tmpj)){
+                    continue;
+                } 
+                optionsCount++;
+                result=Math.max(result, dfs(matx, new Point(tmpi, tmpj), asterix));
+        } 
+        return result + (optionsCount>1?1:0);
+    }
+    static boolean isValid(StringBuilder[] matx, int tmpi, int tmpj){
+        return tmpi>=0 && tmpi<matx.length && tmpj>=0 && tmpj<matx[tmpi].length() && matx[tmpi].charAt(tmpj)!='X';
+    }
+    static void replaceaPoint(StringBuilder[] matx, Point pt){
+        matx[pt.i].insert(pt.j, 'X');
+        matx[pt.i].deleteCharAt(pt.j+1);
+    }
+    static void printMatrix(StringBuilder[] matx){
+        for(int i=0;i<matx.length;i++){
+            System.out.println(matx[i]);
+        }
+    }
+    //return point that has coordinates i and j.
+    static Point determinePoint(StringBuilder[] matx, char c){
+        Point M=new Point();
+        for(int i=0;i<matx.length;i++){
+            for(int j=0;j<matx[i].length();j++){
+                if(matx[i].charAt(j)==c){
+                    M.i=i;
+                    M.j=j;
+                }
+            }
+        }
+        return M;
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int t = scanner.nextInt();
+        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+        for (int tItr = 0; tItr < t; tItr++) {
+            String[] nm = scanner.nextLine().split(" ");
+
+            int n = Integer.parseInt(nm[0]);
+
+            int m = Integer.parseInt(nm[1]);
+
+            StringBuilder[] matrix = new StringBuilder[n];
+
+            for (int i = 0; i < n; i++) {
+                String matrixItem = scanner.nextLine();
+                matrix[i] = new StringBuilder(matrixItem);
+            }
+
+            int k = scanner.nextInt();
+            scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+            String result = countLuck(matrix, k);
+
+            bufferedWriter.write(result);
+            bufferedWriter.newLine();
+        }
+
+        bufferedWriter.close();
+
+        scanner.close();
+    }
+}
