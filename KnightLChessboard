@@ -1,0 +1,165 @@
+/*
+    Abibou Mbodji August 2019
+    This is the solution of this problem.
+    https://www.hackerrank.com/challenges/knightl-on-chessboard/problem
+*/
+
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.*;
+
+class L{
+    int i;
+    int j;
+    int k;
+    L(int _i, int _j){
+        i=_i;
+        j=_j;
+        k=0;
+    }
+    L(int _i, int _j, int _k){
+        i=_i;
+        j=_j;
+        k=_k;
+    }
+    L(L _l){
+        i=_l.i;
+        j=_l.j;
+        k=_l.k;
+    }
+    L(){
+
+    }
+    void printL(){
+        System.out.print("("+i+", "+j+"), ");
+    }
+    boolean isEqual(L pt){
+        if(i==pt.i && j==pt.j) return true;
+        return false;
+    }
+}
+
+public class Solution {
+
+    // Complete the knightlOnAChessboard function below.
+    static int[][] knightlOnAChessboard(int n) {
+        int[][] result=new int[n-1][n-1];
+        boolean[][] chess=new boolean[n][n];
+        L[][] Lpath=Lpaths(n);
+        //printChess(chess);
+    
+        for(int i=0;i<n-1;i++){
+            for(int j=0;j<n-1;j++){
+                result[i][j]=minimumMove(Lpath[i][j], chess);
+            }
+            System.out.println();
+        }
+    
+        return result;
+    }
+    static int minimumMove(L Lpath, boolean[][] chess){
+        int n=chess.length;
+
+        //make sure no move is done in the chessboard.
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                chess[i][j]=false;
+            }
+        }
+
+        L[] kindOfMoves=new L[8];
+        //difference ways to arrange (-+a,-+b) and (-+b, -+a).
+        kindOfMoves[0]=Lpath;
+        kindOfMoves[1]=new L(Lpath.j, Lpath.i, Lpath.k);
+        kindOfMoves[2]=new L(-Lpath.i, Lpath.j, Lpath.k);
+        kindOfMoves[3]=new L(Lpath.j, -Lpath.i, Lpath.k);
+        kindOfMoves[4]=new L(Lpath.i, -Lpath.j, Lpath.k);
+        kindOfMoves[5]=new L(-Lpath.j, Lpath.i, Lpath.k);
+        kindOfMoves[6]=new L(-Lpath.i, -Lpath.j, Lpath.k);
+        kindOfMoves[7]=new L(-Lpath.j, -Lpath.i, Lpath.k);
+
+        Queue<L> queue=new LinkedList<L>();
+        queue.add(new L(0, 0, 0));
+        chess[0][0]=true;
+        while(!queue.isEmpty()){
+            L currL=queue.remove();
+            for(int i=0;i<8;i++){
+                
+                int tmp_i=currL.i+kindOfMoves[i].i;
+                int tmp_j=currL.j+kindOfMoves[i].j;
+                if(isValidMove(chess, tmp_i, tmp_j)){
+                    if(tmp_i==(n-1) && tmp_j==(n-1))
+                        return currL.k+1;
+                    chess[tmp_i][tmp_j]=true;
+                    queue.add(new L(tmp_i, tmp_j, currL.k+1));
+                }
+            }
+            
+
+        }
+        //re-initialize the chessboard with fasle values.
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                chess[i][j]=false;
+            }
+        }
+        return -1;
+    }
+    static boolean isValidMove(boolean[][] chess, int tmp_i, int tmp_j){
+        return tmp_i>=0 && tmp_i<chess.length && tmp_j>=0 && tmp_j<chess.length && chess[tmp_i][tmp_j]==false;
+    }
+    static L[][] Lpaths(int n){
+        L[][] Lpath=new L[n-1][n-1];
+        for(int i=1;i<n;i++){
+            for(int j=1;j<n;j++){
+                Lpath[i-1][j-1]=new L(i, j);
+            }
+        }
+
+        return Lpath;
+    }
+    static void printChess(boolean[][] chess){
+        int n=chess.length;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                System.out.print(chess[i][j]+" ");
+            }
+            System.out.println();
+        }
+    }
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+
+        int n = scanner.nextInt();
+        scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
+
+        int[][] result = knightlOnAChessboard(n);
+
+        for (int i = 0; i < result.length; i++) {
+            for (int j = 0; j < result[i].length; j++) {
+                bufferedWriter.write(String.valueOf(result[i][j]));
+
+                if (j != result[i].length - 1) {
+                    bufferedWriter.write(" ");
+                }
+            }
+
+            if (i != result.length - 1) {
+                bufferedWriter.write("\n");
+            }
+        }
+
+        bufferedWriter.newLine();
+
+        bufferedWriter.close();
+
+        scanner.close();
+    }
+}
